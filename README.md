@@ -3,6 +3,10 @@ module-js
 
 JavaScript client-side modularization
 
+NOTE: Current version has not been made cross-browser compatible, in the 
+end there should be support for IE7+ ( and with that most other browsers 
+should work as well ).
+
 Chained module syntax with some form of self-awareness, module.js
 enforces a sequential dependency resolution and will ensure that
 a module's dependencies and their respective dependencies are resolved 
