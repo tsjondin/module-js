@@ -171,8 +171,6 @@
 
 		} else {
 
-			console.log( "Destroying modularization script.." );
-
 			Event.remove(
 				window, "error",
 				req_err
