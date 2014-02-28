@@ -5,8 +5,8 @@ JavaScript client-side modularization helper
 
 Chained module syntax with some form of self-awareness, module.js
 enforces a sequential dependency resolution and will assure that
-a module's dependencies and their dependencies are resolved before 
-running the module definition.
+a module's dependencies and their respective dependencies are resolved 
+before running the module definition.
 
 Concidering the following dependency tree:
 
