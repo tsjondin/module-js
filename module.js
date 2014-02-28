@@ -39,10 +39,8 @@
 		current = "", // The current module name
 		relative = "", // The module relative path
 
-		boot = d.querySelector( 'script:last-child' ),
+		boot = d.querySelector( 'script[src="module.js"]' ),
 		path = boot.getAttribute( "data-main" );
-
-
 
 	path = path.split( /\//g );
 
@@ -268,7 +266,7 @@
 
 		script.src = source;
 
-		var afterhandler = function ( e ) {
+		var loadhandler = function ( e ) {
 
 			var mod_name = named( name );
 
@@ -276,8 +274,8 @@
 				throw "Script " + source + " does not define a module";
 
 			Event.remove(
-				script, "afterscriptexecute",
-				afterhandler
+				script, "load",
+				loadhandler
 			);
 
 			if ( dotick )
@@ -286,8 +284,8 @@
 		};
 
 		Event.add(
-			script, "afterscriptexecute",
-			afterhandler
+			script, "load",
+			loadhandler
 		);
 
 		Event.add(
