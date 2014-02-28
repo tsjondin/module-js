@@ -17,7 +17,10 @@ Concidering the following dependency tree:
       - bon
       
 The main module will not run its definition until the baz and bon 
-modules have been resolved and included.
+modules have been resolved and included. In this case the module definitions 
+woudl run in the following order:
+
+baz -> bon -> bar -> foo -> main
 
 ###API
 
