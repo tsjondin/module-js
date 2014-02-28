@@ -74,13 +74,13 @@ Here are the two modules that depend on others and a sample of a module that has
 
     module
     
-    	.require( "libs/lib.foobar" )
-    	.require( "libs/lib.event" )
+	.require( "libs/lib.foobar" )
+	.require( "libs/lib.event" )
     
-    	.require( "bar/bar" )
-    	.require( "foo/foo" )
+	.require( "bar/bar" )
+	.require( "foo/foo" )
     
-    	.define( function ( foobar, event, bar, foo ) {
+	.define( function ( foobar, event, bar, foo ) {
     
     		console.log( foobar, event, bar, foo );
     
@@ -90,24 +90,22 @@ Here are the two modules that depend on others and a sample of a module that has
 
     module
 
-	    .require( "foobar/foobar_foo" )
-    	.require( "foobar/foobar_bar" )
+	.require( "foobar/foobar_foo" )
+	.require( "foobar/foobar_bar" )
 
-	    .define( function ( foo, bar ) {
+	.define( function ( foo, bar ) {
   
-	    	return {
-	    		"Foo": foo,
-	    		"Bar": bar
-	    	};
+		return {
+			"Foo": foo,
+			"Bar": bar
+		};
 
     } )
     
 #####foo.js
 
-    module
+    module.define( function ( ) {
 
-	    .define( function ( ) {
-
-		    return function Foo () {};
+		return function Foo () {};
 
     } )
