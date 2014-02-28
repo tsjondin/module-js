@@ -4,7 +4,7 @@ module-js
 JavaScript client-side modularization
 
 Chained module syntax with some form of self-awareness, module.js
-enforces a sequential dependency resolution and will assure that
+enforces a sequential dependency resolution and will ensure that
 a module's dependencies and their respective dependencies are resolved 
 before running the module definition.
 
