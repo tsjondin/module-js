@@ -91,7 +91,15 @@
 
 	}
 
-	// Get next dep or false
+	/**
+	  * <module>.next(  )
+	  *
+	  * Loops through the module dependencies to see
+	  * which dependency should be included next, if all
+	  * are resolved, return false;
+	  *
+	  * @return mixed dependency
+	  */
 	module.next = function next ( ) {
 
 		var id = "";
@@ -109,6 +117,15 @@
 
 	}
 
+	/**
+	  * function parameters( module entry )
+	  *
+	  * Loops through the module dependencies to assign
+	  * which parameters should be sent to the definer function.
+	  *
+	  * @param module entry
+	  * @return array params
+	  */
 	function parameters ( entry ) {
 
 		var deps = entry.dependencies,
