@@ -1,7 +1,7 @@
 module-js
 =========
 
-JavaScript client-side modularization helper
+JavaScript client-side modularization
 
 Chained module syntax with some form of self-awareness, module.js
 enforces a sequential dependency resolution and will assure that
@@ -18,7 +18,7 @@ Concidering the following dependency tree:
       
 The main module will not run its definition until the baz and bon 
 modules have been resolved and included. In this case the module definitions 
-woudl run in the following order:
+would run in the following order:
 
 baz -> bon -> bar -> foo -> main
 
