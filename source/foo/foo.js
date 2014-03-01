@@ -1,5 +1,5 @@
 
-module.define = function ( ) {
+module = function ( ) {
 
 	var prototype = {};
 
