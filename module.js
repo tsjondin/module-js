@@ -394,8 +394,15 @@
 			return factory( current );
 		},
 
-		"set": function () {
-			throw "module cannot be overwritten but will self-destruct after completion";
+		"set": function ( value ) {
+
+			if ( typeof( value ) == "function" ) {
+				var m = factory( current );
+				m.define = value;
+			} else {
+				throw "module cannot be overwritten but will self-destruct after completion";
+			}
+
 		},
 
 		"configurable": true
