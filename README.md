@@ -52,12 +52,12 @@ so here is a short explanation of the methods and then a piece of the example co
   - Is a magic global property that that defines itself when used in a new script, due to this a script can only define one module, which is how I like it, but probably not everyone.
   - NOTE: module.js will self-destruct after all dependencies have been resolved, hence the module property will not be available after the last module has been included.
 
-- module.require( string dependency )
+- method <module>.require( string dependency )
   - Add a new requirement to the module, this method has to be run before the .define method, the path does not require an extension ".js" and is relative to the current modules location.
 
-- module.define( function definer  )
+- property <module>.define = function definer
   - The function to be run that defines the module, the function MUST return the module definition, which can be an object, function, array, number, anything but undefined. The only module exempt from this rule is the one defined as the main module, it doesn't need to return anything as it cannot be depended upon.
-  - The definer function gains the dependencies as parameters in the order of which they are depended upon.
+  - The .define function gains the dependencies as parameters in the order of which they are depended upon.
 
 #####Directory structure
 
@@ -87,11 +87,11 @@ Here are the two modules that depend on others and a sample of a module that has
 	.require( "bar/bar" )
 	.require( "foo/foo" )
     
-	.define( function ( foobar, event, bar, foo ) {
+	.define = function ( foobar, event, bar, foo ) {
     
     		console.log( foobar, event, bar, foo );
     
-    });
+    };
     
 #####lib.foobar.js
 
@@ -100,19 +100,19 @@ Here are the two modules that depend on others and a sample of a module that has
 	.require( "foobar/foobar_foo" )
 	.require( "foobar/foobar_bar" )
 
-	.define( function ( foo, bar ) {
+	.define = function ( foo, bar ) {
   
 		return {
 			"Foo": foo,
 			"Bar": bar
 		};
 
-    } )
+    };
     
 #####foo.js
 
-    module.define( function ( ) {
+    module.define = function ( ) {
 
 		return function Foo () {};
 
-    } )
+    };
