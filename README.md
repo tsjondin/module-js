@@ -1,9 +1,9 @@
-module-js
+module.js
 =========
 
 JavaScript client-side modularization
 
-NOTE: Current version has not been made cross-browser compatible, in the 
+**NOTE:** Current version has not been made cross-browser compatible, in the 
 end there should be support for IE7+ ( and with that most other browsers 
 should work as well ).
 
@@ -12,7 +12,7 @@ enforces a sequential dependency resolution and will ensure that
 a module's dependencies and their respective dependencies are resolved 
 before running the module definition.
 
-Concidering the following dependency tree:
+Concider the following dependency tree:
 
 - main
   - foo
@@ -28,7 +28,7 @@ baz -> bon -> bar -> foo -> main
 
 ###API
 
-module.js API is nothing special and can be explained very briefly,
+The module.js API is nothing special and can be explained very briefly,
 so here is what you need to know about the required HTML and JavaScript.
 
 ####HTML
