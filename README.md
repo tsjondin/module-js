@@ -111,7 +111,7 @@ Here are the two modules that depend on others and a sample of a module that has
     
 #####foo.js
 
-    module.define = function ( ) {
+    module = function ( ) {
 
 		return function Foo () {};
 
