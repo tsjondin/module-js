@@ -23,6 +23,18 @@
 
 	}
 
+	var debug = true,
+		debuglog = function ( message ) {
+			if ( debug === true ) {
+
+				var i = queue.length,
+					message = message;
+				for ( i; i--; ) message = "    " + message;
+				console.log( message );
+
+			}
+		}
+
 	var module = Object.create( null ),
 		dotick = true,
 		modules = {},
@@ -82,14 +94,17 @@
 	}
 
 	// Defines the module scope
-	module.define = function define ( scope ) {
+	Object.defineProperty( module, "define", {
 
-		this.definer = scope;
-		queue.unshift( this );
+		set: function ( scope ) {
 
-		return this;
+			this.definer = scope;
+			queue.unshift( this );
+			return this;
 
-	}
+		}
+
+	} );
 
 	/**
 	  * <module>.next(  )
@@ -172,6 +187,8 @@
 			if ( next == false ) {
 
 				var params = parameters( entry );
+
+				debuglog( "Defining module " + entry.name );
 
 				order.push( entry.name );
 				modules[ entry.name ] = entry.definer.apply( entry, params );
@@ -277,24 +294,34 @@
 	function append ( name ) {
 
 		var script = d.createElement( "script" ),
-			source = url( name );
+			source = url( name ),
+			loaded = false;
+
+		debuglog( "Loading module " + name );
 
 		script.src = source;
+		script.async = false;
 
 		var loadhandler = function ( e ) {
 
 			var mod_name = named( name );
-
-			if ( !modules[ mod_name ] )
-				throw "Script " + source + " does not define a module";
 
 			Event.remove(
 				script, "load",
 				loadhandler
 			);
 
-			if ( dotick )
-				tick();
+			if ( !loaded ) {
+
+				loaded = true;
+
+				if ( !modules[ mod_name ] )
+					throw "Script " + source + " does not define a module";
+
+				if ( dotick )
+					tick();
+
+			}
 
 		};
 
