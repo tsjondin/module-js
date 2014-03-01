@@ -1,9 +1,8 @@
 
-module
-	.define( function () {
+module.define = function () {
 
 		return function LibEvent () {
 
 		};
 
-} )
+};

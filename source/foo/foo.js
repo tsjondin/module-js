@@ -1,8 +1,16 @@
 
-module
+module.define = function ( ) {
 
-	.define( function ( ) {
+	var prototype = {};
 
-		return function Foo () {};
+	prototype.hello = "Hello";
+	prototype.world = "World";
 
-} )
+	return function Foo () {
+
+		var o = Object.create( prototype );
+		return o;
+
+	};
+
+};

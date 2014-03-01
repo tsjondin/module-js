@@ -1,4 +1,6 @@
 
+var time = Date.now();
+
 module
 
 	.require( "libs/lib.foobar" )
@@ -7,8 +9,9 @@ module
 	.require( "bar/bar" )
 	.require( "foo/foo" )
 
-	.define( function ( foobar, event, bar, foo ) {
+	.define = function ( foobar, event, bar, foo ) {
 
-		console.log( foobar, event, bar, foo );
+		time = Date.now() - time;
+		console.log( time + "ms to load" );
 
-});
+	};
