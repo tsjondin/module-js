@@ -3,6 +3,9 @@ module.js
 
 JavaScript client-side modularization
 
+Before anything it should be noted that this is not AMD, it may behave in roughly the same
+ways but it has clear differences.
+
 Supported browsers:
 
  - Microsoft Internet Explorer 9+
