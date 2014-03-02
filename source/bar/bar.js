@@ -1,6 +1,6 @@
 
-module.define = function () {
+define( [ "baz" ], function ( baz ) {
 
-		return function Bar () {};
+	return function Bar () {};
 
-}
+} );
