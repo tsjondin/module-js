@@ -10,7 +10,7 @@ Supported browsers:
  - Chrome 5+
 
 The limited support is due to the following; You should not be using this in a production
-environment, optimize, minimize and package the complete dependency tree before going live.
+environment - optimize, minimize and package the complete dependency tree before going live.
 The assertion that no developer will ever be using any older browsers during their product
 development.
 
