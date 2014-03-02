@@ -3,33 +3,17 @@
 
 	"use strict";
 
-	var Event = {
-
-		add: function add ( o, type, callback ) {
-
-			if ( document.addEventListener )
-				o.addEventListener( type, callback );
-			else o.attachEvent( type, callback );
-
-		},
-
-		remove: function remove ( o, type, callback ) {
-
-			if ( document.removeEventListener )
-				o.removeEventListener( type, callback );
-			else o.detachEvent( type, callback );
-
-		}
-
-	}
-
 	var debug = true,
+		debugtime = Date.now(),
 		debuglog = function ( message ) {
 			if ( debug === true ) {
 
 				var i = queue.length,
 					message = message;
-				for ( i; i--; ) message = "    " + message;
+
+				for ( i; i--; )
+					message = "    " + message;
+
 				console.log( message );
 
 			}
@@ -42,16 +26,12 @@
 		order = [], // The dependency order list, if wanted
 		queue = [], // The backlog queue
 
-		// Aliases
-
-		d = document,
-
 		// Static memory variables
 
 		current = "", // The current module name
 		relative = "", // The module relative path
 
-		boot = d.querySelector( 'script[src="module.js"]' ),
+		boot = document.querySelector( 'script[src="module.js"]' ),
 		path = boot.getAttribute( "data-main" );
 
 	path = path.split( /\//g );
@@ -68,28 +48,20 @@
 	var req_err = function ( e ) {
 
 		dotick = false;
-
-		Event.remove(
-			window,
-			"error",
-			req_err
-		);
+		window.removeEventListener( "error", req_err, false );
 
 	}
 
-	Event.add(
-		window,
-		"error",
-		req_err
-	);
-
+	window.addEventListener( "error", req_err, false );
 
 	// Add a module dependency
 	// This MUST be done before calling define
-	module.require = function require ( source ) {
+	module.require = function require () {
 
-		this.dependencies.push( source );
-		return this;
+		var args = Array.prototype.slice.call( arguments, 0 );
+		this.dependencies = this.dependencies.concat( args );
+
+		return this; //modules[ named( current ) ].define;
 
 	}
 
@@ -188,7 +160,7 @@
 
 				var params = parameters( entry );
 
-				debuglog( "Defining module " + entry.name );
+				debuglog( "resolved dependencies for " + entry.name );
 
 				order.push( entry.name );
 				modules[ entry.name ] = entry.definer.apply( entry, params );
@@ -205,13 +177,12 @@
 
 		} else {
 
-			Event.remove(
-				window, "error",
-				req_err
-			);
-
+			window.removeEventListener( "error", req_err, false );
 			boot.parentNode.removeChild( boot );
 			delete window.module;
+
+			debugtime = Date.now() - debugtime;
+			debuglog( debugtime + "ms to resolve" );
 
 		}
 
@@ -280,6 +251,19 @@
 
 	}
 
+	/**
+	  * function script ( source )
+	  *
+	  * Creates and returns a new script element
+	  */
+	function createScript ( source ) {
+
+		var script = document.createElement( "script" );
+		script.setAttribute( "src", source );
+		script.setAttribute( "async", false );
+		return script;
+
+	}
 
 	/**
 	  * function append( name )
@@ -293,29 +277,23 @@
 	  */
 	function append ( name ) {
 
-		var script = d.createElement( "script" ),
-			source = url( name ),
+		var source = url( name ),
+			script = createScript( source ),
 			loaded = false;
 
-		debuglog( "Loading module " + name );
+		debuglog( "injecting " + name );
 
-		script.src = source;
-		script.async = false;
+		var handler = function ( e ) {
 
-		var loadhandler = function ( e ) {
+			var id = named( name );
 
-			var mod_name = named( name );
-
-			Event.remove(
-				script, "load",
-				loadhandler
-			);
+			script.removeEventListener( "load", handler, false );
 
 			if ( !loaded ) {
 
 				loaded = true;
 
-				if ( !modules[ mod_name ] )
+				if ( !modules[ id ] )
 					throw "Script " + source + " does not define a module";
 
 				if ( dotick )
@@ -325,19 +303,12 @@
 
 		};
 
-		Event.add(
-			script, "load",
-			loadhandler
-		);
+		script.addEventListener( "load", handler, false );
+		script.addEventListener( "error", function ( e ) {
+			throw "Module <" + name + "> could not be loaded from " + source;
+		}, false );
 
-		Event.add(
-			script, "error",
-			function ( e ) {
-				throw "Module <" + name + "> could not be loaded from " + source;
-			}
-		);
-
-		d.head.appendChild( script );
+		document.head.insertBefore( script, boot );
 
 	}
 
@@ -391,14 +362,22 @@
 	Object.defineProperty( window, "module", {
 
 		"get": function () {
+
 			return factory( current );
+
 		},
 
 		"set": function ( value ) {
 
 			if ( typeof( value ) == "function" ) {
-				var m = factory( current );
+
+				var m;
+
+				if ( modules[ named( current ) ] )
+					m = modules[ named( current ) ]
+				else m = factory( current );
 				m.define = value;
+
 			} else {
 				throw "module cannot be overwritten but will self-destruct after completion";
 			}
