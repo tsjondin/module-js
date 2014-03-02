@@ -50,10 +50,11 @@ so here is a short explanation of the methods and then a piece of the example co
 
 - module 
   - Is a magic global property that that defines itself when used in a new script, due to this a script can only define one module, which is how I like it, but probably not everyone.
+  - The module property can be assigned to directly if the module has no dependencies, see the minimal boilerplate example
   - NOTE: module.js will self-destruct after all dependencies have been resolved, hence the module property will not be available after the last module has been included.
 
-- method <module>.require( string dependency )
-  - Add a new requirement to the module, this method has to be run before the .define method, the path does not require an extension ".js" and is relative to the current modules location.
+- method <module>.require( string dep_1, string dep_2, ..., string dep N )
+  - Add a new requirement to the module, this method has to be run before the .define method, the path does not require an extension ".js" and is relative to the current module's location.
 
 - property <module>.define = function definer
   - The function to be run that defines the module, the function MUST return the module definition, which can be an object, function, array, number, anything but undefined. The only module exempt from this rule is the one defined as the main module, it doesn't need to return anything as it cannot be depended upon.
