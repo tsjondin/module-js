@@ -3,12 +3,16 @@ module.js
 
 JavaScript client-side modularization
 
-**NOTE:** Current version has not been made cross-browser compatible, the planned
-support will be for:
+Supported browsers:
 
  - Microsoft Internet Explorer 9+
  - FireFox 4+
  - Chrome 5+
+
+The limited support is due to the following; You should not be using this in a production
+environment, optimize, minimize and package the complete dependency tree before going live.
+The assertion that no developer will ever be using any older browsers during their product
+development.
 
 Chained module syntax with some form of self-awareness, module.js
 enforces a sequential dependency resolution and will ensure that
