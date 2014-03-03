@@ -41,6 +41,7 @@ your CDN script source root.
 
     // main.js
     module.require( "foo", "foobar/bar" ).define = ...
+
     /*
       Would require from:
         http://abcdefg1234567.cloudfront.net/source/foo.js
@@ -48,7 +49,8 @@ your CDN script source root.
     */
 
 If you only have some requirements on CDN you may require them explicitly from the CDN.
-This rule applies to other scripts that may not be located on your server.
+This rule applies to other scripts that may not be located on your server, if you specify
+a protocol (HTTP/HTTPS) it will treat it as a full URL.
 
     // index.htm
     <script data-main="source/main"></script>
@@ -57,7 +59,8 @@ This rule applies to other scripts that may not be located on your server.
     module.require(
       "http://abcdefg1234567.cloudfront.net/source/foo",
       "foobar/bar"
-     ).define = ...
+    ).define = ...
+
     /*
       Would require from:
         http://abcdefg1234567.cloudfront.net/source/foo.js
