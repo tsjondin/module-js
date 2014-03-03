@@ -265,6 +265,16 @@
 
 		var src;
 
+		if ( source.match( /^\w{3,5}\:\/\// ) ) {
+
+			src = source;
+			if ( !src.match( /\.js$/ ) )
+				src = src + ".js";
+
+			return src;
+
+		}
+
 		if ( !source.match( /^\// ) )
 			source = relative + source;
 
