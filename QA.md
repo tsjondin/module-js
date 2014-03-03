@@ -37,7 +37,7 @@ If all your modules are on a CDN you may simply set the data-main root as
 your CDN script source root.
 
     // index.htm
-    <script data-main="http://abcdefg1234567.cloudfront.net/source/main"></script>
+    <script data-main="http://abcdefg1234567.cloudfront.net/source/main" src="module.js"></script>
 
     // main.js
     module.require( "foo", "foobar/bar" ).define = ...
@@ -53,7 +53,7 @@ This rule applies to other scripts that may not be located on your server, if yo
 a protocol (HTTP/HTTPS) it will treat it as a full URL.
 
     // index.htm
-    <script data-main="source/main"></script>
+    <script data-main="source/main" src="module.js"></script>
 
     // main.js
     module.require(
