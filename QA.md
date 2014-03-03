@@ -1,6 +1,20 @@
 
 #Questions and Answers
 
+##What will my module be defined as
+
+If your module has dependencies it must be defined as an object or
+a function. So only these three cases are viable.
+
+####If your module has dependencies and the definer is a function
+The function will be called with the resolved dependencies as parameters.
+
+####If your module has dependencies and the definer is an object
+The object will be returned and populated with the dependencies using module_name => module
+
+####If your module does NOT have dependencies
+Anything assigned to the definer ( or implicit definer using module property ) will be the module
+
 ##In case of two or more modules depending on the same module
 
 In  the case of two or modules, depending on the same module, they will not
