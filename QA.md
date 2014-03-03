@@ -10,13 +10,13 @@ In essence, a module can and will only be declared once.
 E.g.
 
     //Script bar.js:
-    module.require( "foo" ).define( function ( foo  ) {...}  )
+    module.require( "foo" ).define = function ( foo  ) {...}
 
     //Script baz.js:
-    module.require( "foo" ).define( function ( foo  ) {...}  )
+    module.require( "foo" ).define = function ( foo  ) {...}
 
     //Script foo.js:
-    module.define( function (   ) {...}  )
+    module = function (   ) {...}
 
     /* Modules bar and baz will have the same instance of foo  */
 
