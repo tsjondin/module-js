@@ -144,9 +144,12 @@
 			if ( typeof( entry.definer ) == "function" )
 				modules[ entry.name ] = entry.definer.apply( entry, params );
 			else if ( typeof( entry.definer ) == "object" ) {
+
 				for ( var i = 0; i < params.length; i++ ) {
 					entry.definer[ named( entry.dependencies[i] ) ] = params[ i ];
 				}
+
+				modules[ entry.name ] = entry.definer;
 			}
 
 		} else {

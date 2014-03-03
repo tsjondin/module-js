@@ -108,10 +108,7 @@ no further dependencies:
 
 #####main.js
 
-    module
-
-    .require( "libs/lib.foobar", "libs/lib.event", "bar/bar", "foo/foo" )
-
+    module.require( "libs/lib.foobar", "libs/lib.event", "bar/bar", "foo/foo" )
     .define = function ( foobar, event, bar, foo ) {
 
       console.log( foobar, event, bar, foo );
@@ -120,15 +117,13 @@ no further dependencies:
 
 #####lib.foobar.js
 
-    module.require( "foobar/foobar_foo", "foobar/foobar_bar" )
-    .define = function ( foo, bar ) {
-
-      return {
-        "Foo": foo,
-        "Bar": bar
-      };
-
-    };
+    module.require( "foobar/foobar_foo", "foobar/foobar_bar" ).define = {}
+    /* Will result in:
+      {
+        "foobar_foo": function () { ... },
+        "foobar_bar": function () { ... }
+      }
+    */
 
 #####foo.js
 
