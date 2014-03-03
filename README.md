@@ -100,44 +100,44 @@ so here is a short explanation of the methods and then a piece of the example co
 To include from the root source instead of relatively to the current module simply
 add a preceeding slash to the path.
 
-  module.require( "/from/root" ).define = ...
-  // In this example this would include "/source/from/root.js"
+    module.require( "/from/root" ).define = ...
+    // In this example this would include "/source/from/root.js"
 
 Here are the two modules that depend on others and a sample of a module that has
 no further dependencies:
 
 #####main.js
 
-  module
+    module
 
-  .require( "libs/lib.foobar", "libs/lib.event", "bar/bar", "foo/foo" )
+    .require( "libs/lib.foobar", "libs/lib.event", "bar/bar", "foo/foo" )
 
-  .define = function ( foobar, event, bar, foo ) {
+    .define = function ( foobar, event, bar, foo ) {
 
-    console.log( foobar, event, bar, foo );
+      console.log( foobar, event, bar, foo );
 
-  };
+    };
 
 #####lib.foobar.js
 
     module
 
-  .require( "foobar/foobar_foo" )
-  .require( "foobar/foobar_bar" )
+    .require( "foobar/foobar_foo" )
+    .require( "foobar/foobar_bar" )
 
-  .define = function ( foo, bar ) {
+    .define = function ( foo, bar ) {
 
-    return {
-      "Foo": foo,
-      "Bar": bar
+      return {
+        "Foo": foo,
+        "Bar": bar
+      };
+
     };
-
-  };
 
 #####foo.js
 
-  module = function ( ) {
+    module = function ( ) {
 
-    return function Foo () {};
+      return function Foo () {};
 
-  };
+    };
