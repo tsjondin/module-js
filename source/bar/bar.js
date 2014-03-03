@@ -1,6 +1,8 @@
 
-define( [ "baz" ], function ( baz ) {
+module.require( "baz" ).define = function ( baz ) {
 
-	return function Bar () {};
+	return {
+		"baz": baz
+	};
 
-} );
+};

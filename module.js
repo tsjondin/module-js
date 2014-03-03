@@ -12,7 +12,7 @@
 					message = message;
 
 				for ( i; i--; )
-					message = "    " + message;
+					message = "\t" + message;
 
 				console.log( message );
 
@@ -54,16 +54,17 @@
 
 	window.addEventListener( "error", req_err, false );
 
+
 	// Add a module dependency
 	// This MUST be done before calling define
 	module.require = function require () {
 
 		var args = Array.prototype.slice.call( arguments, 0 );
 		this.dependencies = this.dependencies.concat( args );
-
-		return this; //modules[ named( current ) ].define;
+		return window.module;
 
 	}
+
 
 	// Defines the module scope
 	Object.defineProperty( module, "define", {
@@ -77,6 +78,7 @@
 		}
 
 	} );
+
 
 	/**
 	  * <module>.next(  )
@@ -104,6 +106,7 @@
 
 	}
 
+
 	/**
 	  * function parameters( module entry )
 	  *
@@ -128,6 +131,27 @@
 		}
 
 		return parameters.reverse();
+
+	}
+
+
+	function invoke ( entry ) {
+
+		var params = parameters( entry );
+
+		if ( entry.dependencies.length > 0 ) {
+
+			if ( typeof( entry.definer ) == "function" )
+				modules[ entry.name ] = entry.definer.apply( entry, params );
+			else if ( typeof( entry.definer ) == "object" ) {
+				for ( var i = 0; i < params.length; i++ ) {
+					entry.definer[ named( entry.dependencies[i] ) ] = params[ i ];
+				}
+			}
+
+		} else {
+			modules[ entry.name ] = entry.definer;
+		}
 
 	}
 
@@ -158,17 +182,17 @@
 
 			if ( next == false ) {
 
-				var params = parameters( entry );
-
-				debuglog( "resolved dependencies for " + entry.name );
-
 				order.push( entry.name );
-				modules[ entry.name ] = entry.definer.apply( entry, params );
 				queue.shift();
+
+				debuglog( "defined module " + entry.name );
+				invoke( entry );
 
 				tick();
 
 			} else {
+
+				debuglog( "resolving dependency " + named( next ) + " for " + entry.name );
 
 				setpath( entry.path );
 				append( next );
@@ -188,6 +212,7 @@
 
 	}
 
+
 	/**
 	  * function named( string source )
 	  *
@@ -206,6 +231,7 @@
 		if ( relative ) relative = "/" + relative + "/";
 
 	}
+
 
 	/**
 	  * function named( string source )
@@ -237,8 +263,12 @@
 	  */
 	function url ( source ) {
 
-		source = relative + source;
-		var src = root + source;
+		var src;
+
+		if ( !source.match( /^\// ) )
+			source = relative + source;
+
+		src = root + source;
 
 		if ( !src.match( /^\.\// ) )
 			src = "./" + src;
@@ -247,9 +277,11 @@
 			src = src + ".js";
 
 		src = src.replace( /\/+/g, "/" );
+
 		return src;
 
 	}
+
 
 	/**
 	  * function script ( source )
@@ -264,6 +296,7 @@
 		return script;
 
 	}
+
 
 	/**
 	  * function append( name )
@@ -363,24 +396,20 @@
 
 		"get": function () {
 
-			return factory( current );
+			if ( modules[ named( current ) ] )
+				return modules[ named( current ) ];
+			else return factory( current );
 
 		},
 
 		"set": function ( value ) {
 
-			if ( typeof( value ) == "function" ) {
+			var container;
 
-				var m;
-
-				if ( modules[ named( current ) ] )
-					m = modules[ named( current ) ]
-				else m = factory( current );
-				m.define = value;
-
-			} else {
-				throw "module cannot be overwritten but will self-destruct after completion";
-			}
+			if ( modules[ named( current ) ] )
+				container = modules[ named( current ) ]
+			else container = factory( current );
+			container.define = value;
 
 		},
 

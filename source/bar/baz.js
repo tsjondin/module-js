@@ -1,6 +1,4 @@
 
-module = function ( ) {
-
-	return function Baz () {};
-
-};
+module = {
+	"drop the": "BAZ!"
+}
