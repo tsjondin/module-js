@@ -1,53 +1,123 @@
+/*
+	module.js modularization framework
+  Copyright (C) 2014 Tobias Sjöndin <tsjondin at op5 dot com>
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 ( function () {
 
 	"use strict";
 
-	var debug = true,
-		debugtime = Date.now(),
-		debuglog = function ( message ) {
-			if ( debug === true ) {
+	/** User editable settings on how
+	  * module.js should behave:
+	  */
 
-				var i = queue.length,
-					message = message;
+	var Settings = {
 
-				for ( i; i--; )
-					message = "\t" + message;
+		debugging: true,
+		strict: false
 
-				console.log( message );
+	};
 
+	/** When using module.js you should not
+	  * edit anything below this line.
+	  */
+
+	var FrameworkException = function ( message ) {
+		this.name = "FrameworkException";
+		this.message = message;
+	}; FrameworkException.prototype = new Error;
+
+	var ModuleException = function ( message ) {
+		this.name = "ModuleException";
+		this.message = message;
+	}; ModuleException.prototype = new Error;
+
+	var Framework = {
+
+		error: function ( message ) {
+			throw new ModuleException( message );
+		},
+
+		warn: function ( message ) {
+			if ( Settings.debugging && console && console.warn ) {
+				if ( Settings.strict ) Framework.error( message );
+				else console.warn( message );
 			}
+		},
+
+		log: function ( message ) {
+			if ( Settings.debugging && console && console.log ) {
+				console.log( message );
+			}
+		},
+
+		current: "",
+		relative: "",
+
+		modules: {},
+		order: [],
+		queue: [],
+
+		node: null,
+		root: null,
+		main: null,
+		run: true,
+		limit: 0,
+
+		noextend: function ( name ) {
+
+			var i = 0;
+			for ( var property in window ) i++;
+			if ( i > Framework.limit ) {
+				Framework.warn( "Module <" + name + "> extends the global scope!" );
+				Framework.limit = i;
+			}
+
+		},
+
+		initialize: function () {
+
+			Framework.node = document.querySelector( 'script[src="module.js"]' );
+
+			var path = Framework.node.getAttribute( "data-main" );
+
+			if ( !path ) throw new FrameworkException( "Missing data-main attribute on root-node!" );
+			path = path.split( /\// );
+
+			Framework.main = path.pop(),
+			Framework.root = path.join( "/" ) + "/";
+			Framework.current = Framework.main;
+
+			for ( var property in window )
+				Framework.limit++;
+
 		}
 
-	var module = Object.create( null ),
-		dotick = true,
-		modules = {},
+	};
 
-		order = [], // The dependency order list, if wanted
-		queue = [], // The backlog queue
+	Framework.initialize();
 
-		// Static memory variables
-
-		current = "", // The current module name
-		relative = "", // The module relative path
-
-		boot = document.querySelector( 'script[src="module.js"]' ),
-		path = boot.getAttribute( "data-main" );
-
-	path = path.split( /\//g );
-
-	var main = path.pop(),
-		root = path.join( "/" ) + "/";
-
-	current = main;
-	relative = "";
+	var Module = Object.create( null );
 
 	// Handles any exceptions that may occur
 	// in asynchronous actions.
 
 	var req_err = function ( e ) {
 
-		dotick = false;
+		Framework.run = false;
 		window.removeEventListener( "error", req_err, false );
 
 	}
@@ -57,22 +127,32 @@
 
 	// Add a module dependency
 	// This MUST be done before calling define
-	module.require = function require () {
+	Module.require = function require () {
 
 		var args = Array.prototype.slice.call( arguments, 0 );
+
 		this.dependencies = this.dependencies.concat( args );
-		return window.module;
+
+		return this;
 
 	}
 
 
 	// Defines the module scope
-	Object.defineProperty( module, "define", {
+	Object.defineProperty( Module, "define", {
 
 		set: function ( scope ) {
 
 			this.definer = scope;
-			queue.unshift( this );
+			Framework.queue.unshift( this );
+			return this;
+
+		},
+
+		get: function ( ) {
+
+			this.definer = {};
+			Framework.queue.unshift( this );
 			return this;
 
 		}
@@ -89,7 +169,7 @@
 	  *
 	  * @return mixed dependency
 	  */
-	module.next = function next ( ) {
+	Module.next = function next ( ) {
 
 		var id = "";
 
@@ -97,7 +177,7 @@
 
 			id = named( this.dependencies[ i ] );
 
-			if ( typeof( modules[ id ] ) == "undefined" )
+			if ( typeof( Framework.modules[ id ] ) == "undefined" )
 				return this.dependencies[ i ];
 
 		}
@@ -126,7 +206,7 @@
 		for ( i; i--; ) {
 
 			id = named( deps[ i ] );
-			parameters.push( modules[ id ] );
+			parameters.push( Framework.modules[ id ] );
 
 		}
 
@@ -142,18 +222,18 @@
 		if ( entry.dependencies.length > 0 ) {
 
 			if ( typeof( entry.definer ) == "function" )
-				modules[ entry.name ] = entry.definer.apply( entry, params );
+				Framework.modules[ entry.name ] = entry.definer.apply( entry, params );
 			else if ( typeof( entry.definer ) == "object" ) {
 
 				for ( var i = 0; i < params.length; i++ ) {
 					entry.definer[ named( entry.dependencies[i] ) ] = params[ i ];
 				}
 
-				modules[ entry.name ] = entry.definer;
+				Framework.modules[ entry.name ] = entry.definer;
 			}
 
 		} else {
-			modules[ entry.name ] = entry.definer;
+			Framework.modules[ entry.name ] = entry.definer;
 		}
 
 	}
@@ -175,27 +255,23 @@
 	  */
 	function tick () {
 
-		if ( queue.length > 0 ) {
+		if ( Framework.queue.length > 0 ) {
 
-			var entry = queue[ 0 ],
+			var entry = Framework.queue[ 0 ],
 				next = entry.next();
 
-			setpath( current );
-			current = next || current;
+			setpath( Framework.current );
+			Framework.current = next || Framework.current;
 
 			if ( next == false ) {
 
-				order.push( entry.name );
-				queue.shift();
+				Framework.order.push( entry.name );
+				Framework.queue.shift();
 
-				debuglog( "defined module " + entry.name );
 				invoke( entry );
-
 				tick();
 
 			} else {
-
-				debuglog( "resolving dependency " + named( next ) + " for " + entry.name );
 
 				setpath( entry.path );
 				append( next );
@@ -205,11 +281,9 @@
 		} else {
 
 			window.removeEventListener( "error", req_err, false );
-			boot.parentNode.removeChild( boot );
-			delete window.module;
+			Framework.node.parentNode.removeChild( Framework.node );
 
-			debugtime = Date.now() - debugtime;
-			debuglog( debugtime + "ms to resolve" );
+			delete window.module;
 
 		}
 
@@ -226,12 +300,12 @@
 	  */
 	function setpath ( source ) {
 
-		source = (root + source).split( /\// );
+		source = (Framework.root + source).split( /\// );
 		source.shift();
 		source.pop();
 
-		relative = source.join( "/" );
-		if ( relative ) relative = "/" + relative + "/";
+		Framework.relative = source.join( "/" );
+		if ( Framework.relative ) Framework.relative = "/" + Framework.relative + "/";
 
 	}
 
@@ -279,9 +353,9 @@
 		}
 
 		if ( !source.match( /^\// ) )
-			source = relative + source;
+			source = Framework.relative + source;
 
-		src = root + source;
+		src = Framework.root + source;
 
 		if ( !src.match( /^\.\// ) )
 			src = "./" + src;
@@ -327,22 +401,21 @@
 			script = createScript( source ),
 			loaded = false;
 
-		debuglog( "injecting " + name );
-
 		var handler = function ( e ) {
 
 			var id = named( name );
-
 			script.removeEventListener( "load", handler, false );
+
+			Framework.noextend( name );
 
 			if ( !loaded ) {
 
 				loaded = true;
 
-				if ( !modules[ id ] )
-					throw "Script " + source + " does not define a module";
+				if ( !Framework.modules[ id ] )
+					Framework.error( "Script " + source + " does not define a module" );
 
-				if ( dotick )
+				if ( Framework.run )
 					tick();
 
 			}
@@ -351,10 +424,10 @@
 
 		script.addEventListener( "load", handler, false );
 		script.addEventListener( "error", function ( e ) {
-			throw "Module <" + name + "> could not be loaded from " + source;
+			Framework.error( "Module <" + name + "> could not be loaded from " + source );
 		}, false );
 
-		document.head.insertBefore( script, boot );
+		document.head.insertBefore( script, Framework.node );
 
 	}
 
@@ -371,18 +444,18 @@
 
 		var id = named( name );
 
-		if ( typeof( modules[ id ] ) == "undefined" ) {
+		if ( typeof( Framework.modules[ id ] ) == "undefined" ) {
 
-			modules[ id ] = Object.create( module );
-			modules[ id ].dependencies = [];
-			modules[ id ].name = id;
-			modules[ id ].path = relative + name;
+			Framework.modules[ id ] = Object.create( Module );
+			Framework.modules[ id ].dependencies = [];
+			Framework.modules[ id ].name = id;
+			Framework.modules[ id ].path = Framework.relative + name;
 
-			return modules[ id ];
+			return Framework.modules[ id ];
 
 		} else {
 
-			throw "Module <" + id + "> already exists!";
+			Framework.warn( "Module <" + id + "> was overwritten!" );
 
 		}
 
@@ -409,9 +482,11 @@
 
 		"get": function () {
 
-			if ( modules[ named( current ) ] )
-				return modules[ named( current ) ];
-			else return factory( current );
+			var id = named( Framework.current );
+
+			if ( Framework.modules[ id ] )
+				return Framework.modules[ id ];
+			else return factory( Framework.current );
 
 		},
 
@@ -419,9 +494,10 @@
 
 			var container;
 
-			if ( modules[ named( current ) ] )
-				container = modules[ named( current ) ]
-			else container = factory( current );
+			if ( Framework.modules[ named( Framework.current ) ] )
+				container = Framework.modules[ named( Framework.current ) ]
+			else container = factory( Framework.current );
+
 			container.define = value;
 
 		},
@@ -430,6 +506,6 @@
 
 	} );
 
-	append( main );
+	append( Framework.main );
 
 } ) ();
